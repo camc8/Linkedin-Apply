@@ -1,3 +1,3 @@
 # Linkedin-Apply-Bot
-# Linkedin-Apply-Bot
-# Linkedin-Apply-Bot
+
+- Start bot: `npm run start`
