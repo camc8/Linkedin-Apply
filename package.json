@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init": "npx playwright install && npm init playwright@latest",
+    "init": "npx playwright install",
     "start": "npx playwright test"
   },
   "keywords": [],
