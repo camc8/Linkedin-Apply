@@ -16,9 +16,12 @@ log("Starting Bot");
     await context.addCookies(JSON.parse(data));
   });
   const page = await context.newPage();
-  await page.goto("https://linkedin.com/jobs");
+  await page.goto("https://linkedin.com/login");
 
-  if (!urlStartsWith("linkedin.com/jobs", page)) {
+  if (!urlStartsWith("linkedin.com/feed", page)) {
+    context.clearCookies();
+    await wait(page);
+    await page.goto("https://linkedin.com/login");
     log("Not yet logged in, logging in now...");
 
     await page.getByLabel("Email or Phone").click();
@@ -45,12 +48,12 @@ log("Starting Bot");
         JSON.stringify(await context.cookies())
       );
       wait(page);
-      await page.goto("https://www.linkedin.com/jobs/");
     } else {
       log("Error: Incorrect URL", "error");
       return;
     }
   }
+  await page.goto("https://www.linkedin.com/jobs/");
   log("Searching for jobs...");
   await page
     .getByRole("combobox", { name: "Search by title, skill, or" })
@@ -66,12 +69,6 @@ log("Starting Bot");
 
   //Jobs scroll selector: //*[@id="main"]/div/div[1]/div/ul
   await page.waitForSelector('//*[@id="main"]/div/div[1]/div/ul/li/div/div');
-  // await jobsLocator.waitFor();
-  // await page.locator('//*[@id="main"]/div/div[1]/div/ul').hover();
-  // await wait(page, 1000);
-  // await page.mouse.wheel(0, 600);
-  // await wait(page, 1000);
-  // await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 
   let jobsArray: string[] = [];
   let jobsArrayPrev: string[] = [];
@@ -86,30 +83,18 @@ log("Starting Bot");
     jobsArrayPrev = [...jobsArray];
     await page.locator('//*[@id="main"]/div/div[1]/div/ul').hover();
     await wait(page, 100);
-    await page.mouse.wheel(0, 600);
+    await page.mouse.wheel(0, 800);
     await wait(page, 1000);
     const elements = await page.locator("[data-job-id]").all();
     const elementsArray = await Promise.all(elements.map(async (el) => el));
     for (const ele of elementsArray) {
       const id = (await ele.getAttribute("data-job-id")) || "null";
       if (!jobsArray.includes(id)) jobsArray.push(id);
-      jobsArray.push(id);
     }
   }
 
   log(JSON.stringify(jobsArray));
 
-  // log(JSON.stringify(jobElements));
-  // log((await jobElements[0]?.getAttribute("data-job-id")) || "no id");
-
-  // jobElements.forEach(async (element) => {
-  //   log((await element.getAttribute("data-job-id")) ?? "ID not found");
-  // });
-  // const jobElements = await page
-  //   .locator("css='#main > div > div.scaffold-layout__list > div > ul'")
-  //   .all();
-
-  // log(JSON.stringify(jobElements));
   prompt("Waiting, press enter to close");
   // await page.screenshot({ path: `./screenshots/${Math.random()}.png` });
   await browser.close();
